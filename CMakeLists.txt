@@ -30,4 +30,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(Z_DUMMY_TARGET ${SRC_LIST} src/button_colors.cpp src/button_colors.h)
+add_executable(Z_DUMMY_TARGET ${SRC_LIST} src/functions.cpp src/functions.h)
