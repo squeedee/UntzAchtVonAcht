@@ -8,6 +8,7 @@
 
 namespace functions {
     uint32_t fnKeyColor;
+    bool isFn = false;
 
     TrellisCallback handleFunctionButton(keyEvent event);
 
@@ -20,47 +21,42 @@ namespace functions {
 
     functionNode_t *lastFunctionNode = headFunctionNode;
 
-    void init(uint16_t keyID, uint32_t color) {
-        fnKeyColor = color;
-        buttons::trellis.activateKey(keyID, SEESAW_KEYPAD_EDGE_RISING, true);
-        buttons::trellis.activateKey(keyID, SEESAW_KEYPAD_EDGE_FALLING, true);
-        buttons::trellis.registerCallback(keyID, handleFunctionButton);
+    void displayCombos(bool visible);
+
+
+    // color is the color of the Fn button
+    void init(uint16_t fnKeyID, uint32_t fnColor) {
+        fnKeyColor = fnColor;
+        buttons::trellis.activateKey(fnKeyID, SEESAW_KEYPAD_EDGE_RISING, true);
+        buttons::trellis.activateKey(fnKeyID, SEESAW_KEYPAD_EDGE_FALLING, true);
+        buttons::trellis.registerCallback(fnKeyID, handleFunctionButton);
     }
-
-
-    void enableCombos();
-
-    void disableCombos();
 
     TrellisCallback handleFunctionButton(keyEvent event) {
         if (event.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING) {
             buttons::trellis.setPixelColor(event.bit.NUM, fnKeyColor);
-            enableCombos();
+            displayCombos(true);
+            isFn = true;
         } else {
             buttons::trellis.setPixelColor(event.bit.NUM, PIXEL_OFF);
-            disableCombos();
+            displayCombos(false);
+            isFn = false;
         }
         buttons::trellis.show();
     }
 
-    void enableCombos() {
+    void displayCombos(bool visible) {
         functionNode_t *currentNode = headFunctionNode;
         while (currentNode != nullptr) {
-            buttons::trellis.setPixelColor(currentNode->button->keyID, currentNode->button->color);
+            int32_t color = visible ? currentNode->button->color: PIXEL_OFF;
+            buttons::trellis.setPixelColor(currentNode->button->keyID, color);
             currentNode = currentNode->next;
         }
     }
-
-    void disableCombos() {
-        functionNode_t *currentNode = headFunctionNode;
-        while (currentNode != nullptr) {
-            buttons::trellis.setPixelColor(currentNode->button->keyID, PIXEL_OFF);
-            currentNode = currentNode->next;
-        }
-    }
-
 
     TrellisCallback handleFunctionCombo(keyEvent event) {
+        if (!isFn) return nullptr;
+,uuuuuuuuu,6
         button_t *targetButton;
         functionNode_t *currentNode = headFunctionNode;
         while (currentNode != nullptr) {
@@ -72,18 +68,17 @@ namespace functions {
         }
 
         if (targetButton != nullptr) {
-            Serial.println("Found handler");
             if (event.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING) {
-//                buttons::trellis.setPixelColor(event.bit.NUM, targetFn->color);
+                buttons::trellis.setPixelColor(event.bit.NUM, targetButton->highlight);
             } else {
-//                buttons::trellis.setPixelColor(event.bit.NUM, PIXEL_OFF);
+                buttons::trellis.setPixelColor(event.bit.NUM, targetButton->color);
             }
-//            buttons::trellis.show();
+            buttons::trellis.show();
         }
     }
 
 
-    void add(button_t *button) {
+    void addCombo(button_t *button) {
         functionNode_t *newNode;
         newNode = (functionNode_t *) malloc(sizeof(functionNode_t));
         newNode->button = button;
@@ -100,14 +95,15 @@ namespace functions {
         buttons::trellis.registerCallback(button->keyID, handleFunctionCombo);
     }
 
-    void add(uint32_t color, uint16_t keyID, void (*onPress)(int), void (*onRelease)(int)) {
+    void addCombo(uint32_t color, uint32_t highlight, uint16_t keyID, void (*onPress)(int), void (*onRelease)(int)) {
         auto *button = new button_t{};
 
         button->keyID = keyID;
         button->color = color;
+        button->highlight = highlight;
 //        button->onRelease = onRelease;
 //        button->onPress = onPress;
 
-        add(button);
+        addCombo(button);
     }
 }

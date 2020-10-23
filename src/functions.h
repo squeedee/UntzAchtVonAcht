@@ -9,16 +9,17 @@
 namespace functions {
     typedef struct button {
         uint32_t color;
+        uint32_t highlight;
         uint16_t keyID;
 //        void (*onPress)(int keyID);
 //        void (*onRelease)(int keyID);
     } button_t;
 
-    void add(button_t *button);
+    void addCombo(button_t *button);
 
-    void add(uint32_t color, uint16_t keyID, void (*onPress)(int), void (*onRelease)(int));
+    void addCombo(uint32_t color, uint32_t highlight, uint16_t keyID, void (*onPress)(int), void (*onRelease)(int));
 
-    void init(uint16_t keyID, uint32_t color);
+    void init(uint16_t fnKeyID, uint32_t fnColor);
 }
 
 

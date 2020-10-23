@@ -15,9 +15,9 @@ void setup() {
 
     functions::init(0,0xffffff);
 
-    functions::add(0x00600000, 7, nullptr, nullptr);
-    functions::add(0x00006000, 6, nullptr, nullptr);
-    functions::add(0x00000060, 5, nullptr, nullptr);
+    functions::addCombo(0x600000, 0x60222222, 7, nullptr, nullptr);
+    functions::addCombo(0x006000, 0x226022, 6, nullptr, nullptr);
+    functions::addCombo(0x000060, 0x222260, 5, nullptr, nullptr);
 }
 
 void loop() {
